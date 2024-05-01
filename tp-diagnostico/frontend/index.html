@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda Mistica</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Formulario de Contactos</h2>
+
+  <form id="formularioContacto">
+    <label for="id">ID:</label>
+    <input type="number" id="id" name="id" disabled> <br>  
+
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre" required>
+
+    <h3>Teléfono(s)</h3>
+    <div id="contenedorTelefonos">
+      <div class="telefono">
+        <label for="telefono1">Número:</label>
+        <input type="number" id="telefono1" name="telefono1">
+      </div>
+    </div>
+
+    <button type="button" id="agregarTelefono">Agregar Teléfono</button>
+
+    <button type="submit">Guardar Contacto</button>
+  </form>
+
+  <h1>Agenda de Contactos</h1>
+
+  <table id="tablaContactos">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Teléfono(s)</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  <script src="./src/js/script.js"></script>
+</body>
+</html>
