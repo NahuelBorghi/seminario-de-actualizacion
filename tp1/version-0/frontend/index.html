@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Administrador de Usuarios, Roles y Acciones</title>
+    </head>
+    <body>
+        <header>
+            <h1>Administrador de Usuarios, Roles y Acciones</h1>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#usuarios">Usuarios</a></li>
+                <li><a href="#roles">Roles</a></li>
+                <li><a href="#acciones-por-rol">Acciones por Rol</a></li>
+            </ul>
+        </nav>
+
+        <section id="usuarios">
+            <h2>Usuarios</h2>
+            <div id="usuarios-lista">
+                <!-- Aquí se mostrará la lista de usuarios -->
+            </div>
+
+            <div id="crear-usuario">
+                <h3>Crear Nuevo Usuario</h3>
+                <form id="crearUsuarioForm">
+                    <label for="nombreUsuario">Nombre de Usuario:</label>
+                    <input type="text" id="nombreUsuario" required />
+
+                    <label for="rolUsuario">Rol de Usuario:</label>
+                    <select id="rolUsuario" required>
+                        <!-- Las opciones de roles se cargarán dinámicamente -->
+                    </select>
+
+                    <button type="submit">Crear Usuario</button>
+                </form>
+            </div>
+
+            <div id="editar-usuario">
+                <h3>Editar Usuario</h3>
+                <form id="editarUsuarioForm">
+                    <label for="editarNombreUsuario">Nombre de Usuario:</label>
+                    <input type="text" id="editarNombreUsuario" required />
+
+                    <label for="editarRolUsuario">Rol de Usuario:</label>
+                    <select id="editarRolUsuario" required>
+                        <!-- Las opciones de roles se cargarán dinámicamente -->
+                    </select>
+
+                    <input type="hidden" id="editarIdUsuario" />
+
+                    <button type="submit">Guardar Cambios</button>
+                    <button type="button" id="cancelarEdicionUsuario">
+                        Cancelar
+                    </button>
+                </form>
+            </div>
+
+            <div id="eliminar-usuario">
+                <h3>Eliminar Usuario</h3>
+                <form id="eliminarUsuarioForm">
+                    <label for="eliminarIdUsuario">ID de Usuario:</label>
+                    <input type="text" id="eliminarIdUsuario" required />
+
+                    <button type="submit">Eliminar Usuario</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="roles">
+            <h2>Roles</h2>
+            <div id="roles-lista">
+                <!-- Aquí se mostrará la lista de roles -->
+            </div>
+
+            <div id="crear-rol">
+                <h3>Crear Nuevo Rol</h3>
+                <form id="crearRolForm">
+                    <label for="nombreRol">Nombre del Rol:</label>
+                    <input type="text" id="nombreRol" required />
+
+                    <button type="submit">Crear Rol</button>
+                </form>
+            </div>
+
+            <div id="editar-rol">
+                <h3>Editar Rol</h3>
+                <form id="editarRolForm">
+                    <label for="editarNombreRol">Nombre del Rol:</label>
+                    <input type="text" id="editarNombreRol" required />
+
+                    <input type="hidden" id="editarIdRol" />
+
+                    <button type="submit">Guardar Cambios</button>
+                    <button type="button" id="cancelarEdicionRol">
+                        Cancelar
+                    </button>
+                </form>
+            </div>
+
+            <div id="eliminar-rol">
+                <h3>Eliminar Rol</h3>
+                <form id="eliminarRolForm">
+                    <label for="eliminarIdRol">ID del Rol:</label>
+                    <input type="text" id="eliminarIdRol" required />
+
+                    <button type="submit">Eliminar Rol</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="acciones-por-rol">
+            <h2>Acciones por Rol</h2>
+            <div id="acciones-rol-lista">
+                <!-- Aquí se mostrará la lista de acciones por rol -->
+            </div>
+
+            <div id="asignar-acciones-rol">
+                <h3>Asignar Acciones a Rol</h3>
+                <form id="asignarAccionesRolForm">
+                    <label for="rolSeleccionado">Rol:</label>
+                    <select id="rolSeleccionado" required>
+                        <!-- Las opciones de roles se cargarán dinámicamente -->
+                    </select>
+
+                    <label for="accionesDisponibles"
+                        >Acciones Disponibles:</label
+                    >
+                    <select id="accionesDisponibles" multiple required>
+                        <!-- Las opciones de acciones se cargarán dinámicamente -->
+                    </select>
+
+                    <button type="submit">Asignar Acciones</button>
+                </form>
+            </div>
+
+            <div id="quitar-acciones-rol">
+                <h3>Quitar Acciones de Rol</h3>
+                <form id="quitarAccionesRolForm">
+                    <label for="rolSeleccionadoQuitar">Rol:</label>
+                    <select id="rolSeleccionadoQuitar" required>
+                        <!-- Las opciones de roles se cargarán dinámicamente -->
+                    </select>
+
+                    <label for="accionesAsignadas">Acciones Asignadas:</label>
+                    <select id="accionesAsignadas" multiple required>
+                        <!-- Las opciones de acciones se cargarán dinámicamente -->
+                    </select>
+
+                    <button type="submit">Quitar Acciones</button>
+                </form>
+            </div>
+        </section>
+
+        <footer></footer>
+    </body>
+    <script src="./src/js/script.js"></script>
+</html>
