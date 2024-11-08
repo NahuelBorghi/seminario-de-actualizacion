@@ -1,6 +1,6 @@
 const BaseException = require('../exceptions/BaseException');
-const UserService = require('../service/UserService');
-const { generateToken } = require('../../backend copy/utils/jwt');
+const UserService = require('../services/userService');
+const { generateToken } = require('../utils/jwt');
 
 class UserController {
     constructor() {

@@ -1,6 +1,6 @@
 const BaseException = require('../exceptions/BaseException');
 const MySqlRepository = require('../repository/MySqlRepository');
-const { verifyHash } = require('../../backend copy/utils/hash');
+const { verifyHash } = require('../utils/hash');
 
 class UserService {
     constructor() {

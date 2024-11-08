@@ -1,4 +1,4 @@
-const generateId = require('../UUID.js');
+const generateId = require('../utils/UUID.js');
 
 class User {
     constructor(userName, password, email, state = true, id = null) {

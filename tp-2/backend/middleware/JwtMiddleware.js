@@ -1,4 +1,4 @@
-const BaseException = require("../../backend/exceptions/BaseException");
+const BaseException = require("../exceptions/BaseException");
 const { verifyToken } = require("../utils/jwt");
 
 // Middleware para verificar el JWT desde una cookie
