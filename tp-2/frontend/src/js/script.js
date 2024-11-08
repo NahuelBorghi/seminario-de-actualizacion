@@ -33,7 +33,7 @@ function deleteRoleForm(roleId) {
 }
 
 function loadRoles() {
-    fetch("http://localhost:8080/AccountList/roles")
+    fetch("http://localhost:8080/roles")
     .then(response => response.json())
     .then(roles => {
         const roleList = document.getElementById("roles-lista");
