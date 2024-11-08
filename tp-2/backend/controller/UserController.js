@@ -1,5 +1,5 @@
 const BaseException = require('../exceptions/BaseException');
-const UserService = require('../services/userService');
+const UserService = require('../service/userService');
 const { generateToken } = require('../utils/jwt');
 
 class UserController {
@@ -55,9 +55,7 @@ class UserController {
             throw new BaseException(`UserController.logout: ${error.message}`, error.statusCode??400, "Bad Request", "UserLogoutError");
         }
     }
-    async verify(req, res){
-        res.status(200).send({ message: 'User verified' });
-    }
+    
     async getUserById(req, res) {
         const label = `-------------------- Get user by ID - ${Date.now()}`;
         console.time(label);
@@ -70,6 +68,21 @@ class UserController {
         } catch (error) {
             console.timeEnd(label)
             throw new BaseException(`UserController.getUserById: ${error.message}`, error.statusCode??400, "Bad Request", "UserGetError");
+        }
+    }
+
+    async deleteUser(req, res) {
+        const label = `-------------------- Delete user - ${Date.now()}`;
+        console.time(label);
+        try {
+            const { id } = req.query;
+            await this.userService.deleteUser(id);
+            console.timeLog(label, "user deleted successfully");
+            console.timeEnd(label);
+            return res.status(200).send({ message: 'User deleted successfully' });
+        } catch (error) {
+            console.timeEnd(label)
+            throw new BaseException(`UserController.deleteUser: ${error.message}`, error.statusCode??400, "Bad Request", "UserDeleteError");
         }
     }
 }

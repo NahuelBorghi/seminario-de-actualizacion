@@ -28,21 +28,13 @@ UserRoutes.put("/logout", async (req, res, next) => {
     }
 });
 
-// UserRoutes.delete("/", async (req, res, next) => {
-//     try {
-//         await UserController.delete(req, res);
-//     } catch (error) {
-//         next(error);
-//     }
-// });
-
-UserRoutes.get("/verify", async (req, res, next)=>{
-    try{
-        await userController.verify(req, res);
-    } catch (error){
+UserRoutes.delete("/", async (req, res, next) => {
+    try {
+        await UserController.deleteUser(req, res);
+    } catch (error) {
         next(error);
     }
-})
+});
 
 UserRoutes.get("/userById", async (req, res, next)=>{
     try{

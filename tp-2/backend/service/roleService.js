@@ -1,6 +1,5 @@
 const BaseException = require("../exceptions/BaseException");
 const MySqlRepository = require("../repository/MySqlRepository");
-const { verifyHash } = require("../utils/hash");
 
 class RoleService {
     constructor() {
@@ -10,9 +9,9 @@ class RoleService {
         console.timeEnd("RoleService setup");
     }
 
-    async createRole(roleName, password, email) {
+    async createRole(roleName) {
         try {
-            return await this.mysqlRepository.createRole( roleName, password, email );
+            return await this.mysqlRepository.createRole( roleName );
         } catch (error) {
             throw new BaseException( `createRoleService: ${error.message}`, 400, "Bad Request", "RoleCreationError" );
         }

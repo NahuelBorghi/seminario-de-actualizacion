@@ -65,7 +65,13 @@ class MySqlRepository {
         const query = `SELECT * FROM Users WHERE id = ?`;
         try {
             const [[result]] = await this.connection.execute(query, [id]);
-            if (!result) throw new BaseException( "User not found", 404, "Not Found", "UserNotFoundError" );
+            if (!result)
+                throw new BaseException(
+                    "User not found",
+                    404,
+                    "Not Found",
+                    "UserNotFoundError"
+                );
             const user = new User(
                 result.userName,
                 result.password,
@@ -78,31 +84,6 @@ class MySqlRepository {
             console.error(error);
             throw new BaseException(
                 `mysqlRepository.getUserById: ${error.message}`,
-                error.statusCode ?? 400,
-                "Bad Request",
-                "UserCreationError"
-            );
-        }
-    }
-
-    async getUserLoggedById(id) {
-        const query = `SELECT * FROM Users WHERE id = ? AND state = 1`;
-        try {
-            const [[result]] = await this.connection.execute(query, [id]);
-            if (result) {
-                const user = new User(
-                    result.userName,
-                    result.password,
-                    result.email,
-                    result.state,
-                    result.id
-                );
-                return user;
-            }
-        } catch (error) {
-            console.error(error);
-            throw new BaseException(
-                `mysqlRepository.getUserLoggedById: ${error.message}`,
                 error.statusCode ?? 400,
                 "Bad Request",
                 "UserCreationError"
@@ -158,327 +139,282 @@ class MySqlRepository {
         }
     }
 
-    // Publication methods
-    async createPublication(publication) {
-        const query = `INSERT INTO Publications (id, title, description, state, status, ubication, exchange, creationDate, creationUser, modificationDate, modificationUser) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    async updateUser(id, userName, password, email, state, roleID) {
+        const query = `UPDATE Users SET userName = ?, password = ?, email = ?, state = ?, roleID = ? WHERE id = ?`;
         try {
             await this.connection.execute(query, [
-                publication.id,
-                publication.title,
-                publication.description,
-                publication.state,
-                publication.status,
-                publication.ubication,
-                publication.exchange,
-                publication.creationDate,
-                publication.creationUser,
-                publication.modificationDate,
-                publication.modificationUser,
+                userName,
+                password,
+                email,
+                state,
+                roleID,
+                id,
             ]);
-            return publication.id;
+            const user = await this.getUserLoggedById(id);
+            return user;
         } catch (error) {
             console.error(error);
             throw new BaseException(
-                `mysqlRepository.createPublication: ${error.message}`,
+                `mysqlRepository.updateUser: ${error.message}`,
                 error.statusCode ?? 400,
                 "Bad Request",
-                "PublicationCreationError"
+                "UserCreationError"
             );
         }
     }
 
-    async getPublications(limit, offset, tagsFilter) {
-        const queryData = `
-        SELECT 
-            Publications.*, 
-            (
-                SELECT JSON_ARRAYAGG(JSON_OBJECT('id', Tags.id, 'tagName', Tags.tagName))
-                FROM TagPublication
-                INNER JOIN Tags ON TagPublication.idTags = Tags.id
-                WHERE TagPublication.Publications_id = Publications.id
-            ) AS publicationTags,
-            (
-                SELECT JSON_ARRAYAGG(i.idImage)
-                FROM ImagePublication i
-                WHERE i.idPublication = Publications.id
-            ) AS images
-        FROM Publications
-        ${
-            tagsFilter.length !== 0
-                ? `
-            INNER JOIN TagPublication tp ON Publications.id = tp.Publications_id
-            INNER JOIN Tags t ON tp.idTags = t.id
-            WHERE t.tagName IN (${tagsFilter.map(() => "?").join(",")})
-        `
-                : ""
-        }
-        GROUP BY Publications.id
-        LIMIT ? OFFSET ?`;
-
-        const queryTotal = `
-        SELECT COUNT(DISTINCT Publications.id) as total 
-        FROM Publications
-        INNER JOIN TagPublication ON Publications.id = TagPublication.Publications_id
-        INNER JOIN Tags ON TagPublication.idTags = Tags.id
-        ${
-            tagsFilter.length !== 0
-                ? `WHERE Tags.tagName IN (${tagsFilter
-                      .map(() => "?")
-                      .join(",")})`
-                : ""
-        }
-    `;
-
+    async deleteUser(id) {
+        const query = `DELETE FROM Users WHERE id = ?`;
         try {
-            // Ejecuta ambas consultas en paralelo
-            const [dataResult, totalResult] = await Promise.all([
-                this.connection.execute(queryData, [
-                    ...tagsFilter,
-                    limit,
-                    offset,
-                ]),
-                this.connection.execute(queryTotal, [...tagsFilter]),
-            ]);
-
-            const data = dataResult[0];
-            const total = totalResult[0][0]["total"];
-
-            return { data, total };
+            await this.connection.execute(query, [id]);
+            return true;
         } catch (error) {
             console.error(error);
             throw new BaseException(
-                `mysqlRepository.getPublications: ${error.message}`,
+                `mysqlRepository.deleteUser: ${error.message}`,
                 error.statusCode ?? 400,
                 "Bad Request",
-                "GetPublicationsError"
+                "UserCreationError"
             );
         }
     }
 
-    async getPublicationById(id) {
-        const query = `
-            SELECT 
-                p.*, 
-                t.id AS tagId, 
-                t.tagName, 
-                i.idImage 
-            FROM 
-                Publications p
-            LEFT JOIN 
-                TagPublication tp ON p.id = tp.Publications_id
-            LEFT JOIN 
-                Tags t ON tp.idTags = t.id
-            LEFT JOIN 
-                ImagePublication i ON p.id = i.idPublication
-            WHERE 
-                p.id = ?;
-        `;
+    // Role methods
+    async createRole(roleName) {
+        const query = `INSERT INTO Roles (roleName) VALUES (?)`;
         try {
-            const [results] = await this.connection.execute(query, [id]);
-
-            // Organiza los resultados para evitar duplicados
-            const publication = {
-                ...results[0],
-                tags: [],
-                images: [],
-            };
-
-            // Agrega los tags e imágenes al objeto `publication`
-            results.forEach((row) => {
-                if (
-                    row.tagId &&
-                    !publication.tags.some((tag) => tag.id === row.tagId)
-                ) {
-                    publication.tags.push({
-                        id: row.tagId,
-                        tagName: row.tagName,
-                    });
-                }
-                if (row.idImage && !publication.images.includes(row.idImage)) {
-                    publication.images.push(row.idImage);
-                }
-            });
-
-            return publication;
-        } catch (error) {
-            console.error(error);
-            throw new BaseException(
-                `mysqlRepository.getPublicationById: ${error.message}`,
-                error.statusCode ?? 400,
-                "Bad Request",
-                "GetPublicationError"
-            );
-        }
-    }
-
-    async getPublicationsByUserId(idUser) {
-        const query = `SELECT * FROM Publication WHERE idUser = ?`;
-        try {
-            const [result] = await this.connection.execute(query, [idUser]);
-            return result;
-        } catch (error) {
-            console.error(error);
-            throw new BaseException(
-                `mysqlRepository.getPublicationsByUserId: ${error.message}`,
-                error.statusCode ?? 400,
-                "Bad Request",
-                "GetPublicationsError"
-            );
-        }
-    }
-
-    async updatePublicationState(publication) {
-        const query =
-            "UPDATE Publication SET title = ?, description = ?, state = ?, status = ?, modificationDate = ?, modificationUser = ? WHERE id = ?";
-        try {
-            const [result] = await this.connection.execute(query, [
-                publication.title,
-                publication.description,
-                publication.state,
-                publication.status,
-                publication.modificationDate,
-                publication.modificationUser,
-                publication.id,
-            ]);
-            return result.insertId;
-        } catch (error) {
-            console.error(error);
-            throw new BaseException(
-                `mysqlRepository.updatePublicationState: ${error.message}`,
-                error.statusCode ?? 400,
-                "Bad Request",
-                "UpdatePublicationState"
-            );
-        }
-    }
-
-    async deletePublication(id) {
-        const query = `DELETE FROM Publication WHERE id = ?`;
-        try {
-            const [result] = await this.connection.execute(query, [id]);
+            const [result] = await this.connection.execute(query, [roleName]);
             return result.affectedRows;
         } catch (error) {
             console.error(error);
             throw new BaseException(
-                `mysqlRepository.deletePublication: ${error.message}`,
+                `mysqlRepository.createRole: ${error.message}`,
                 error.statusCode ?? 400,
                 "Bad Request",
-                "DeletePublicationError"
+                "RoleCreationError"
             );
         }
     }
 
-    // Chat methods
-
-    // Offer methods
-
-    // Image methods
-    async insertImage({ id, image, mimetype, creationDate, creationUser }) {
-        const query = ` INSERT INTO Image (id, image, mimetype, creationDate, creationUser) VALUES (?, ?, ?, ?, ?); `;
-        const validationQuery = `SELECT id FROM Users WHERE id = ?`;
+    async getAllRoles() {
+        const query = `SELECT * FROM Roles`;
         try {
-            const [validation] = await this.connection.execute(
-                validationQuery,
-                [creationUser]
+            const [result] = await this.connection.execute(query);
+            return result;
+        } catch (error) {
+            console.error(error);
+            throw new BaseException(
+                `mysqlRepository.getAllRoles: ${error.message}`,
+                error.statusCode ?? 400,
+                "Bad Request",
+                "RoleCreationError"
             );
-            if (validation.length === 0) {
+        }
+    }
+
+    async getRoleById(id) {
+        const query = `SELECT * FROM Roles WHERE id = ?`;
+        try {
+            const [[result]] = await this.connection.execute(query, [id]);
+            if (!result) {
                 throw new BaseException(
-                    "User not found",
+                    "Role not found",
                     404,
                     "Not Found",
-                    "UserNotFound"
+                    "RoleNotFoundError"
                 );
             }
-            await this.connection.execute(query, [
-                id,
-                image,
-                mimetype,
-                creationDate,
-                creationUser,
-            ]);
+            return result;
         } catch (error) {
             console.error(error);
             throw new BaseException(
-                `mysqlRepository.insertImage: ${error.message}`,
+                `mysqlRepository.getRoleById: ${error.message}`,
                 error.statusCode ?? 400,
                 "Bad Request",
-                "ImageCreationError"
+                "RoleCreationError"
             );
         }
     }
 
-    async getImageById(imageId) {
-        const query = `SELECT * FROM Image WHERE id = ?`;
+    async getRoleByName(roleName) {
+        const query = `SELECT * FROM Roles WHERE roleName = ?`;
         try {
-            const [rows] = await this.connection.execute(query, [imageId]);
-            if (rows.length === 0) {
-                return null;
+            const [[result]] = await this.connection.execute(query, [roleName]);
+            if (!result) {
+                throw new BaseException(
+                    "Role not found",
+                    404,
+                    "Not Found",
+                    "RoleNotFoundError"
+                );
             }
-            return rows[0];
+            return result;
         } catch (error) {
             console.error(error);
             throw new BaseException(
-                `mysqlRepository.getImageById: ${error.message}`,
+                `mysqlRepository.getRoleByName: ${error.message}`,
                 error.statusCode ?? 400,
                 "Bad Request",
-                "ImageRetrievalError"
+                "RoleCreationError"
             );
         }
     }
 
-    async insertImagePublicationRelation(idPublication, idUser, idImage) {
-        const query = `INSERT INTO ImagePublication (id, idPublication, idUser, idImage) VALUES (?, ?, ?, ?)`;
-        const id = generateUUID();
-        console.log({ id, idPublication, idUser, idImage });
-        const values = [id, idPublication, idUser, idImage];
+    async updateRole(id, roleName) {
+        const query = `UPDATE Roles SET roleName = ? WHERE id = ?`;
         try {
-            await this.connection.execute(query, values);
-            return id;
+            await this.connection.execute(query, [roleName, id]);
+            const role = await this.getRoleById(id);
+            return role;
         } catch (error) {
             console.error(error);
             throw new BaseException(
-                `mysqlRepository.insertImagePublicationRelation: ${error.message}`,
+                `mysqlRepository.updateRole: ${error.message}`,
                 error.statusCode ?? 400,
                 "Bad Request",
-                "ImagePublicationRelationError"
+                "RoleCreationError"
             );
         }
     }
 
-    // Tag methods
-    async getTags(limit, offset) {
-        const queryData = `SELECT * FROM Tags LIMIT ? OFFSET ?`;
-        const queryTotal = `SELECT COUNT(*) as total FROM Tags`;
+    async deleteRole(id) {
+        const query = `DELETE FROM Roles WHERE id = ?`;
         try {
-            // promise.all para ejecutar las dos consultas en paralelo ;)
-            const res = Promise.all([
-                this.connection.execute(queryData, [limit, offset]),
-                this.connection.execute(queryTotal),
+            await this.connection.execute(query, [id]);
+            return true;
+        } catch (error) {
+            console.error(error);
+            throw new BaseException(
+                `mysqlRepository.deleteRole: ${error.message}`,
+                error.statusCode ?? 400,
+                "Bad Request",
+                "RoleCreationError"
+            );
+        }
+    }
+
+    // RolesActions methods
+
+    async createRolesActions(roleID, actionID) {
+        const query = `INSERT INTO RolesActions (roleID, actionID) VALUES (?, ?)`;
+        try {
+            const [result] = await this.connection.execute(query, [
+                roleID,
+                actionID,
             ]);
-            const [data, total] = await res;
-            return { data: data[0], total: total[0] };
+            return result.affectedRows;
         } catch (error) {
             console.error(error);
             throw new BaseException(
-                `mysqlRepository.getTags: ${error.message}`,
+                `mysqlRepository.createRolesActions: ${error.message}`,
                 error.statusCode ?? 400,
                 "Bad Request",
-                "GetTagsError"
+                "RolesActionsCreationError"
             );
         }
     }
 
-    async addTagToPublication(idPublication, idTag) {
-        const query = `INSERT INTO TagPublication (Publications_id, idTags) VALUES (?, ?)`;
+    async getAllRolesActions() {
+        const query = `SELECT * FROM RolesActions`;
         try {
-            await this.connection.execute(query, [idPublication, idTag]);
+            const [result] = await this.connection.execute(query);
+            return result;
         } catch (error) {
             console.error(error);
             throw new BaseException(
-                `mysqlRepository.asociateTagToPublication: ${error.message}`,
+                `mysqlRepository.getAllRolesActions: ${error.message}`,
                 error.statusCode ?? 400,
                 "Bad Request",
-                "AsociateTagToPublicationError"
+                "RolesActionsCreationError"
+            );
+        }
+    }
+
+    async getRolesActionsById(id) {
+        const query = `SELECT * FROM RolesActions WHERE id = ?`;
+        try {
+            const [[result]] = await this.connection.execute(query, [id]);
+            if (!result) {
+                throw new BaseException(
+                    "RolesActions not found",
+                    404,
+                    "Not Found",
+                    "RolesActionsNotFoundError"
+                );
+            }
+            return result;
+        } catch (error) {
+            console.error(error);
+            throw new BaseException(
+                `mysqlRepository.getRolesActionsById: ${error.message}`,
+                error.statusCode ?? 400,
+                "Bad Request",
+                "RolesActionsCreationError"
+            );
+        }
+    }
+
+    async getRolesActionsByRoleID(roleID) {
+        const query = `SELECT * FROM RolesActions WHERE roleID = ?`;
+        try {
+            const [result] = await this.connection.execute(query, [roleID]);
+            return result;
+        } catch (error) {
+            console.error(error);
+            throw new BaseException(
+                `mysqlRepository.getRolesActionsByRoleID: ${error.message}`,
+                error.statusCode ?? 400,
+                "Bad Request",
+                "RolesActionsCreationError"
+            );
+        }
+    }
+
+    async getRolesActionsByActionID(actionID) {
+        const query = `SELECT * FROM RolesActions WHERE actionID = ?`;
+        try {
+            const [result] = await this.connection.execute(query, [actionID]);
+            return result;
+        } catch (error) {
+            console.error(error);
+            throw new BaseException(
+                `mysqlRepository.getRolesActionsByActionID: ${error.message}`,
+                error.statusCode ?? 400,
+                "Bad Request",
+                "RolesActionsCreationError"
+            );
+        }
+    }
+
+    async updateRolesActions(id, roleID, actionID) {
+        const query = `UPDATE RolesActions SET roleID = ?, actionID = ? WHERE id = ?`;
+        try {
+            await this.connection.execute(query, [roleID, actionID, id]);
+            const roleAction = await this.getRolesActionsById(id);
+            return roleAction;
+        } catch (error) {
+            console.error(error);
+            throw new BaseException(
+                `mysqlRepository.updateRolesActions: ${error.message}`,
+                error.statusCode ?? 400,
+                "Bad Request",
+                "RolesActionsCreationError"
+            );
+        }
+    }
+
+    async deleteRolesActions(id) {
+        const query = `DELETE FROM RolesActions WHERE id = ?`;
+        try {
+            await this.connection.execute(query, [id]);
+            return true;
+        } catch (error) {
+            console.error(error);
+            throw new BaseException(
+                `mysqlRepository.deleteRolesActions: ${error.message}`,
+                error.statusCode ?? 400,
+                "Bad Request",
+                "RolesActionsCreationError"
             );
         }
     }

@@ -46,11 +46,35 @@ class UserService {
         }
     }
 
+    async updateUser(id, userName, password, email, state, roleId) {
+        try {
+            return await this.mysqlRepository.updateUser(id, userName, password, email, state, roleId);
+        } catch (error) {
+            throw new BaseException(`updateUserService: ${error.message}`, error.statusCode??400, "Bad Request", "UserUpdateError");
+        }
+    }
+
     async getUserById(id) {
         try {
             return await this.mysqlRepository.getUserById(id);
         } catch (error) {
             throw new BaseException(`getUserByIdService: ${error.message}`, error.statusCode??400, error.stack??"Bad Request", "UserNotFoundError");
+        }
+    }
+
+    async getUserByUserName(userName) {
+        try {
+            return await this.mysqlRepository.getUserByUserName(userName);
+        } catch (error) {
+            throw new BaseException(`getUserByUserNameService: ${error.message}`, error.statusCode??400, error.stack??"Bad Request", "UserNotFoundError");
+        }
+    }
+
+    async deleteUser(id) {
+        try {
+            return await this.mysqlRepository.deleteUser(id);
+        } catch (error) {
+            throw new BaseException(`deleteUserService: ${error.message}`, error.statusCode??400, error.stack??"Bad Request", "UserNotFoundError");
         }
     }
 }

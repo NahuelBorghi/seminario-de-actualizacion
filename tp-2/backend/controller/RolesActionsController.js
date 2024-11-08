@@ -1,5 +1,5 @@
 const BaseException = require("../exceptions/BaseException");
-const RolesActionsService = require("../services/rolesActionsService");
+const RolesActionsService = require("../service/rolesActionsService");
 
 class RolesActionsController {
     constructor() {
@@ -40,7 +40,7 @@ class RolesActionsController {
         const label = `-------------------- RolesActions logout - ${Date.now()}`;
         console.time(label);
         try {
-            const { id, rolesActionsName } = req.rolesActions;
+            const { id, rolesActionsName } = req.body;
             await this.rolesActionsService.updateRolesActions(id, rolesActionsName, roleId);
             console.timeLog(label, "rolesActions updated successfully");
             console.timeEnd(label);
@@ -54,8 +54,8 @@ class RolesActionsController {
         const label = `-------------------- Get rolesActions by ID - ${Date.now()}`;
         console.time(label);
         try {
-            const { id } = req.query;
-            const rolesActions = await this.rolesActionsService.getRolesActionsById(id);
+            const { actionId } = req.params;
+            const rolesActions = await this.rolesActionsService.getRolesActionsById(actionId);
             console.timeLog(label, "rolesActions found successfully");
             console.timeEnd(label);
             return res.status(200).send(rolesActions);
