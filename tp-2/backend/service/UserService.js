@@ -39,18 +39,26 @@ class UserService {
             if (!user.userName) {
                 throw new BaseException('User not found', 404, "Not Found", "UserNotFoundError");
             } 
-            const userLogged = await this.mysqlRepository.updateUserState(user.id, false);
+            const userLogged = await this.mysqlRepository.updateUserState(user.id, 0);
             return userLogged
         } catch (error) {
             throw new BaseException(`logoutUserService: ${error.message}`, error.statusCode??400, "Bad Request", "UserLogoutError");
         }
     }
 
-    async updateUser(id, userName, password, email, state, roleId) {
+    async updateUser(id, userName, state, roleId) {
         try {
-            return await this.mysqlRepository.updateUser(id, userName, password, email, state, roleId);
+            return await this.mysqlRepository.updateUser(id, userName, state, roleId);
         } catch (error) {
             throw new BaseException(`updateUserService: ${error.message}`, error.statusCode??400, "Bad Request", "UserUpdateError");
+        }
+    }
+
+    async getAllUsers() {
+        try {
+            return await this.mysqlRepository.getAllUsers();
+        } catch (error) {
+            throw new BaseException(`getAllUsersService: ${error.message}`, error.statusCode??400, error.stack??"Bad Request", "UserNotFoundError");
         }
     }
 

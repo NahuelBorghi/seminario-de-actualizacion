@@ -2,7 +2,6 @@ const BaseException = require('../exceptions/BaseException');
 const User = require('../model/UserModel');
 const { createConnection } = require("mysql2/promise");
 const { hashFunciton } = require('../utils/hash');
-const generateUUID = require('../utils/UUID');
 
 
 class MySqlRepository {
@@ -15,14 +14,14 @@ class MySqlRepository {
         console.time(label);
         const env = {
             host:
-                process.env.DATABASE_HOST ||
-                "FALTA VARIABLE DE ENTORNO DATABASE_HOST",
+                process.env.DB_HOST ||
+                "FALTA VARIABLE DE ENTORNO DB_HOST",
             user:
-                process.env.DATABASE_USER ||
-                "FALTA VARIABLE DE ENTORNO DATABASE_USER",
+                process.env.DB_USER ||
+                "FALTA VARIABLE DE ENTORNO DB_USER",
             password:
-                process.env.DATABASE_PASSWORD ||
-                "FALTA VARIABLE DE ENTORNO MYSQL_PASSWORD",
+                process.env.MYSQL_ROOT_PASSWORD ||
+                "FALTA VARIABLE DE ENTORNO MYSQL_ROOT_PASSWORD",
             database:
                 process.env.MYSQL_DATABASE ||
                 "FALTA VARIABLE DE ENTORNO MYSQL_DATABASE",
@@ -37,13 +36,15 @@ class MySqlRepository {
     }
 
     // User methods
-    async createUser(userName, password, email) {
+    async createUser(userName, password, email, state = 1, Roles_id = 1) {
         const { hash, salt } = hashFunciton(password);
-        const newUser = new User(userName, hash, email);
-        const query = `INSERT INTO Users (id, userName, password, email, state) VALUES (?, ?, ?, ?, ?)`;
+        const newUser = new User(userName, hash, email, Roles_id, state);
+        const query = `INSERT INTO Users (id, Roles_id, userName, password, email, state) VALUES (?, ?, ?, ?, ?, ?)`;
         try {
+            console.log(newUser);
             const [result] = await this.connection.execute(query, [
                 newUser.id,
+                newUser.Roles_id,
                 newUser.userName,
                 newUser.password,
                 newUser.email,
@@ -76,6 +77,7 @@ class MySqlRepository {
                 result.userName,
                 result.password,
                 result.email,
+                result.Roles_id,
                 result.state,
                 result.id
             );
@@ -84,6 +86,22 @@ class MySqlRepository {
             console.error(error);
             throw new BaseException(
                 `mysqlRepository.getUserById: ${error.message}`,
+                error.statusCode ?? 400,
+                "Bad Request",
+                "UserCreationError"
+            );
+        }
+    }
+
+    async getAllUsers() {
+        const query = `SELECT * FROM Users`;
+        try {
+            const [result] = await this.connection.execute(query);
+            return result;
+        } catch (error) {
+            console.error(error);
+            throw new BaseException(
+                `mysqlRepository.getAllUsers: ${error.message}`,
                 error.statusCode ?? 400,
                 "Bad Request",
                 "UserCreationError"
@@ -107,7 +125,8 @@ class MySqlRepository {
                 result.userName,
                 result.password,
                 result.email,
-                result.setup,
+                result.Roles_id,
+                result.state,
                 result.id
             );
             return user;
@@ -126,7 +145,7 @@ class MySqlRepository {
         const query = `UPDATE Users SET state = ? WHERE id = ?`;
         try {
             await this.connection.execute(query, [state, id]);
-            const user = await this.getUserLoggedById(id);
+            const user = await this.getUserById(id);
             return user;
         } catch (error) {
             console.error(error);
@@ -139,18 +158,16 @@ class MySqlRepository {
         }
     }
 
-    async updateUser(id, userName, password, email, state, roleID) {
-        const query = `UPDATE Users SET userName = ?, password = ?, email = ?, state = ?, roleID = ? WHERE id = ?`;
+    async updateUser(id, userName, state, Roles_id) {
+        const query = `UPDATE Users SET userName = ?, state = ?, Roles_id = ? WHERE id = ?`;
         try {
             await this.connection.execute(query, [
                 userName,
-                password,
-                email,
                 state,
-                roleID,
+                Roles_id,
                 id,
             ]);
-            const user = await this.getUserLoggedById(id);
+            const user = await this.getUserById(id);
             return user;
         } catch (error) {
             console.error(error);
@@ -227,12 +244,7 @@ class MySqlRepository {
             return result;
         } catch (error) {
             console.error(error);
-            throw new BaseException(
-                `mysqlRepository.getRoleById: ${error.message}`,
-                error.statusCode ?? 400,
-                "Bad Request",
-                "RoleCreationError"
-            );
+            throw new BaseException( `mysqlRepository.getRoleById: ${error.message}`, error.statusCode ?? 400, "Bad Request", "RoleCreationError" );
         }
     }
 
@@ -241,22 +253,12 @@ class MySqlRepository {
         try {
             const [[result]] = await this.connection.execute(query, [roleName]);
             if (!result) {
-                throw new BaseException(
-                    "Role not found",
-                    404,
-                    "Not Found",
-                    "RoleNotFoundError"
-                );
+                throw new BaseException( "Role not found", 404, "Not Found", "RoleNotFoundError" );
             }
             return result;
         } catch (error) {
             console.error(error);
-            throw new BaseException(
-                `mysqlRepository.getRoleByName: ${error.message}`,
-                error.statusCode ?? 400,
-                "Bad Request",
-                "RoleCreationError"
-            );
+            throw new BaseException( `mysqlRepository.getRoleByName: ${error.message}`, error.statusCode ?? 400, "Bad Request", "RoleCreationError" );
         }
     }
 
@@ -268,12 +270,7 @@ class MySqlRepository {
             return role;
         } catch (error) {
             console.error(error);
-            throw new BaseException(
-                `mysqlRepository.updateRole: ${error.message}`,
-                error.statusCode ?? 400,
-                "Bad Request",
-                "RoleCreationError"
-            );
+            throw new BaseException( `mysqlRepository.updateRole: ${error.message}`, error.statusCode ?? 400, "Bad Request", "RoleCreationError" );
         }
     }
 
@@ -293,14 +290,14 @@ class MySqlRepository {
         }
     }
 
-    // RolesActions methods
+    // RoleActions methods
 
-    async createRolesActions(roleID, actionID) {
-        const query = `INSERT INTO RolesActions (roleID, actionID) VALUES (?, ?)`;
+    async createRolesActions(actionName, Roles_id) {
+        const query = `INSERT INTO RoleActions (actionName, Roles_id) VALUES (?, ?)`;
         try {
             const [result] = await this.connection.execute(query, [
-                roleID,
-                actionID,
+                actionName,
+                Roles_id,
             ]);
             return result.affectedRows;
         } catch (error) {
@@ -315,7 +312,7 @@ class MySqlRepository {
     }
 
     async getAllRolesActions() {
-        const query = `SELECT * FROM RolesActions`;
+        const query = `SELECT * FROM RoleActions`;
         try {
             const [result] = await this.connection.execute(query);
             return result;
@@ -331,16 +328,11 @@ class MySqlRepository {
     }
 
     async getRolesActionsById(id) {
-        const query = `SELECT * FROM RolesActions WHERE id = ?`;
+        const query = `SELECT * FROM RoleActions WHERE id = ?`;
         try {
             const [[result]] = await this.connection.execute(query, [id]);
             if (!result) {
-                throw new BaseException(
-                    "RolesActions not found",
-                    404,
-                    "Not Found",
-                    "RolesActionsNotFoundError"
-                );
+                throw new BaseException( "RolesActions not found", 404, "Not Found", "RolesActionsNotFoundError" );
             }
             return result;
         } catch (error) {
@@ -354,10 +346,10 @@ class MySqlRepository {
         }
     }
 
-    async getRolesActionsByRoleID(roleID) {
-        const query = `SELECT * FROM RolesActions WHERE roleID = ?`;
+    async getRolesActionsByRoleID(Roles_id) {
+        const query = `SELECT * FROM RoleActions WHERE Roles_id = ?`;
         try {
-            const [result] = await this.connection.execute(query, [roleID]);
+            const [result] = await this.connection.execute(query, [Roles_id]);
             return result;
         } catch (error) {
             console.error(error);
@@ -370,10 +362,10 @@ class MySqlRepository {
         }
     }
 
-    async getRolesActionsByActionID(actionID) {
-        const query = `SELECT * FROM RolesActions WHERE actionID = ?`;
+    async getRolesActionsByActionID(id) {
+        const query = `SELECT * FROM RoleActions WHERE id = ?`;
         try {
-            const [result] = await this.connection.execute(query, [actionID]);
+            const [result] = await this.connection.execute(query, [id]);
             return result;
         } catch (error) {
             console.error(error);
@@ -386,10 +378,10 @@ class MySqlRepository {
         }
     }
 
-    async updateRolesActions(id, roleID, actionID) {
-        const query = `UPDATE RolesActions SET roleID = ?, actionID = ? WHERE id = ?`;
+    async updateRolesActions(id, Roles_id, actionName) {
+        const query = `UPDATE RoleActions SET Roles_id = ?, actionName = ? WHERE id = ?`;
         try {
-            await this.connection.execute(query, [roleID, actionID, id]);
+            await this.connection.execute(query, [Roles_id, actionName, id]);
             const roleAction = await this.getRolesActionsById(id);
             return roleAction;
         } catch (error) {
@@ -404,7 +396,7 @@ class MySqlRepository {
     }
 
     async deleteRolesActions(id) {
-        const query = `DELETE FROM RolesActions WHERE id = ?`;
+        const query = `DELETE FROM RoleActions WHERE id = ?`;
         try {
             await this.connection.execute(query, [id]);
             return true;

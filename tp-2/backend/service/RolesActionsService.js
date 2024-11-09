@@ -9,9 +9,9 @@ class RolesActionsService {
         console.timeEnd("RolesActionsService setup");
     }
 
-    async createRolesActions(actionName, roleId) {
+    async createRolesActions(actionName, Role_id) {
         try {
-            return await this.mysqlRepository.createRolesActions( actionName, roleId );
+            return await this.mysqlRepository.createRolesActions( actionName, Role_id );
         } catch (error) {
             throw new BaseException( `createRolesActionsService: ${error.message}`, 400, "Bad Request", "RolesActionsCreationError" );
         }
@@ -26,9 +26,9 @@ class RolesActionsService {
         }
     }
 
-    async updateRolesActions(id, actionName, roleId) {
+    async updateRolesActions(id, actionName, Role_id) {
         try {
-            const role = await this.mysqlRepository.updateRolesActions(id, actionName, roleId);
+            const role = await this.mysqlRepository.updateRolesActions(id, actionName, Role_id);
             return role;
         } catch (error) {
             throw new BaseException( `logoutRolesActionsService: ${error.message}`, error.statusCode ?? 400, "Bad Request", "RolesActionsLogoutError" );

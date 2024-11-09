@@ -1,7 +1,6 @@
 // // Routes for RoleController
 const RoleRoutes = require("express").Router();
 const RoleController = require("../controller/RoleController.js");
-const Role = require("../model/RoleModel.js");
 const roleController = new RoleController();
 
 RoleRoutes.post("/", async (req, res, next) => {
@@ -20,7 +19,7 @@ RoleRoutes.get("/", async (req, res, next) => {
     }
 });
 
-RoleRoutes.put("/", async (req, res, next) => {
+RoleRoutes.put("/:id", async (req, res, next) => {
     try {
         await roleController.updateRole(req, res);
     } catch (error) {
@@ -28,7 +27,7 @@ RoleRoutes.put("/", async (req, res, next) => {
     }
 });
 
-RoleRoutes.delete("/", async (req, res, next) => {
+RoleRoutes.delete("/:id", async (req, res, next) => {
     try {
         await roleController.deleteRole(req, res);
     } catch (error) {
@@ -36,7 +35,7 @@ RoleRoutes.delete("/", async (req, res, next) => {
     }
 });
 
-RoleRoutes.get("/:roleId", async (req, res, next) => {
+RoleRoutes.get("/:id", async (req, res, next) => {
     try {
         await roleController.getRoleById(req, res);
     } catch (error) {

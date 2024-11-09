@@ -1,5 +1,5 @@
 const BaseException = require("../exceptions/BaseException");
-const RolesActionsService = require("../service/rolesActionsService");
+const RolesActionsService = require("../service/RolesActionsService");
 
 class RolesActionsController {
     constructor() {
@@ -13,8 +13,8 @@ class RolesActionsController {
         const label = `-------------------- RolesActions creation - ${Date.now()}`;
         console.time(label);
         try {
-            const { rolesActionsName } = req.body;
-            await this.rolesActionsService.createRolesActions(rolesActionsName, roleId);
+            const { actionName, Roles_id } = req.body;
+            await this.rolesActionsService.createRolesActions(actionName, Roles_id);
             console.timeLog(label, "rolesActions created successfully");
             console.timeEnd(label);
             return res.status(201).send({ message: "RolesActions created successfully" });
@@ -27,10 +27,10 @@ class RolesActionsController {
         const label = `-------------------- RolesActions getAllRolesActionss - ${Date.now()}`;
         console.time(label);
         try {
-            const rolesActionss = await this.rolesActionsService.getAllRolesActionss();
-            console.timeLog(label, "rolesActionss found successfully");
+            const roleActions = await this.rolesActionsService.getAllRolesActionss();
+            console.timeLog(label, "roleActions found successfully");
             console.timeEnd(label);
-            return res.send({ rolesActionss: rolesActionss });
+            return res.send({ roleActions: roleActions });
         } catch (error) {
             console.timeEnd(label);
             throw new BaseException( `RolesActionsController.getAllRolesActionss: ${error.message}`, error.statusCode ?? 400, "Bad Request", "RolesActionsLoginError" );
@@ -40,8 +40,9 @@ class RolesActionsController {
         const label = `-------------------- RolesActions logout - ${Date.now()}`;
         console.time(label);
         try {
-            const { id, rolesActionsName } = req.body;
-            await this.rolesActionsService.updateRolesActions(id, rolesActionsName, roleId);
+            const { id } = req.params;
+            const { actionName, Roles_id } = req.body;
+            await this.rolesActionsService.updateRolesActions(id, actionName, Roles_id);
             console.timeLog(label, "rolesActions updated successfully");
             console.timeEnd(label);
             return res.status(200).send({ message: "RolesActions updated" });
@@ -54,8 +55,8 @@ class RolesActionsController {
         const label = `-------------------- Get rolesActions by ID - ${Date.now()}`;
         console.time(label);
         try {
-            const { actionId } = req.params;
-            const rolesActions = await this.rolesActionsService.getRolesActionsById(actionId);
+            const { id } = req.params;
+            const rolesActions = await this.rolesActionsService.getRolesActionsById(id);
             console.timeLog(label, "rolesActions found successfully");
             console.timeEnd(label);
             return res.status(200).send(rolesActions);
@@ -69,7 +70,7 @@ class RolesActionsController {
         const label = `-------------------- RolesActions delete - ${Date.now()}`;
         console.time(label);
         try {
-            const { id } = req.rolesActions;
+            const { id } = req.params;
             await this.rolesActionsService.deleteRolesActions(id);
             console.timeLog(label, "rolesActions deleted successfully");
             console.timeEnd(label);

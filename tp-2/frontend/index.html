@@ -18,141 +18,163 @@
             </ul>
         </nav>
 
-        <section id="usuarios">
-            <h2>Usuarios</h2>
-            <div id="usuarios-lista">
-                <!-- Aquí se mostrará la lista de usuarios -->
-            </div>
-
-            <div id="crear-usuario">
-                <h3>Crear Nuevo Usuario</h3>
-                <form id="crearUsuarioForm">
-                    <label for="nombreUsuario">Nombre de Usuario:</label>
-                    <input type="text" id="nombreUsuario" required />
-
-                    <label for="rolUsuario">Rol de Usuario:</label>
-                    <select id="rolUsuario" required>
-                        <!-- Las opciones de roles se cargarán dinámicamente -->
-                    </select>
-
-                    <button type="submit">Crear Usuario</button>
-                </form>
-            </div>
-
-            <div id="editar-usuario">
-                <h3>Editar Usuario</h3>
-                <form id="editarUsuarioForm">
-                    <label for="editarNombreUsuario">Nombre de Usuario:</label>
-                    <input type="text" id="editarNombreUsuario" required />
-
-                    <label for="editarRolUsuario">Rol de Usuario:</label>
-                    <select id="editarRolUsuario" required>
-                        <!-- Las opciones de roles se cargarán dinámicamente -->
-                    </select>
-
-                    <input type="hidden" id="editarIdUsuario" />
-
-                    <button type="submit">Guardar Cambios</button>
-                    <button type="button" id="cancelarEdicionUsuario">
-                        Cancelar
-                    </button>
-                </form>
-            </div>
-
-            <div id="eliminar-usuario">
-                <h3>Eliminar Usuario</h3>
-                <form id="eliminarUsuarioForm">
-                    <label for="eliminarIdUsuario">ID de Usuario:</label>
-                    <input type="text" id="eliminarIdUsuario" required />
-
-                    <button type="submit">Eliminar Usuario</button>
-                </form>
-            </div>
-        </section>
-
         <section id="roles">
-            <h2>Roles</h2>
-            <div id="roles-lista">
-                <!-- Aquí se mostrará la lista de roles -->
-            </div>
-
-            <div id="crear-rol">
-                <h3>Crear Nuevo Rol</h3>
+            <!-- Formulario para crear un nuevo rol -->
+            <section>
+                <h2>Crear Rol</h2>
                 <form id="crearRolForm">
                     <label for="nombreRol">Nombre del Rol:</label>
-                    <input type="text" id="nombreRol" required />
-
-                    <button type="submit">Crear Rol</button>
+                    <input type="text" id="nombreRol" required>
+                    <button type="submit">Crear</button>
                 </form>
-            </div>
+            </section>
 
-            <div id="editar-rol">
-                <h3>Editar Rol</h3>
+            <!-- Formulario para editar un rol -->
+            <section>
+                <h2>Editar Rol</h2>
                 <form id="editarRolForm">
-                    <label for="editarNombreRol">Nombre del Rol:</label>
-                    <input type="text" id="editarNombreRol" required />
-
-                    <input type="hidden" id="editarIdRol" />
-
+                    <input type="hidden" id="editarIdRol">
+                    <label for="editarNombreRol">Nuevo Nombre del Rol:</label>
+                    <input type="text" id="editarNombreRol" required>
                     <button type="submit">Guardar Cambios</button>
-                    <button type="button" id="cancelarEdicionRol">
-                        Cancelar
-                    </button>
                 </form>
-            </div>
+            </section>
 
-            <div id="eliminar-rol">
-                <h3>Eliminar Rol</h3>
+            <!-- Formulario para eliminar un rol -->
+            <section>
+                <h2>Eliminar Rol</h2>
                 <form id="eliminarRolForm">
-                    <label for="eliminarIdRol">ID del Rol:</label>
-                    <input type="text" id="eliminarIdRol" required />
-
-                    <button type="submit">Eliminar Rol</button>
+                    <input type="hidden" id="eliminarIdRol">
+                    <button type="submit">Confirmar Eliminación</button>
                 </form>
-            </div>
+            </section>
+
+            <!-- Lista de roles -->
+            <section>
+                <h2>Lista de Roles</h2>
+                <div id="roles-lista"></div>
+            </section>
+        </section>
+
+        <section id="usuarios">
+            <h2>Usuarios</h2>
+            <!-- Formulario para loguear un usuario -->
+                <section>
+                <h2>Login de Usuario</h2>
+                    <form id="loginForm">
+                        <label for="userName">Nombre de Usuario:</label>
+                        <input type="text" id="userName" required>
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password" required>
+                        <button type="submit">Ingresar</button>
+                    </form>
+                </section>
+            
+            <!-- Formulario para cerrar sesión -->
+                <section>
+                    <h2>Cerrar Sesión</h2>
+                    <button id="logoutButton" type="submit">Cerrar Sesión</button>
+                </section>
+            
+            <!-- Formulario para crear un nuevo usuario -->
+                <h2>Crear Usuario</h2>
+                <form id="crearUsuarioForm">
+                    <label for="nombreUsuario">Nombre de Usuario:</label>
+                    <input type="text" id="nombreUsuario" required>
+                    <label for="passwordUsuario">Contraseña:</label>
+                    <input type="password" id="passwordUsuario" required>
+                    <label for="emailUsuario">Email:</label>
+                    <input type="email" id="emailUsuario" required>
+                    <label for="estadoUsuario">Estado:</label>
+                    <select id="estadoUsuario" required>
+                        <option value=1>Activo</option>
+                        <option value=0>Inactivo</option>
+                    </select>
+                    <label for="rolUsuario">Rol:</label>
+                    <input type="text" id="rolUsuario" required>
+                    <button type="submit">Crear</button>
+                </form>
+            </section>
+
+            <!-- Formulario para editar un usuario -->
+            <section>
+                <h2>Editar Usuario</h2>
+                <form id="editarUsuarioForm">
+                    <input type="hidden" id="editarIdUsuario">
+                    <label for="editarNombreUsuario">Nombre de Usuario:</label>
+                    <input type="text" id="editarNombreUsuario" required>
+                    <label for="editarPasswordUsuario">Contraseña:</label>
+                    <input type="password" id="editarPasswordUsuario">
+                    <label for="editarEmailUsuario">Email:</label>
+                    <input type="email" id="editarEmailUsuario">
+                    <label for="editarEstadoUsuario">Estado:</label>
+                    <select id="editarEstadoUsuario">
+                        <option value=1>Activo</option>
+                        <option value=0>Inactivo</option>
+                    </select>
+                    <label for="editarRolUsuario">Rol:</label>
+                    <input type="text" id="editarRolUsuario">
+                    <button type="submit">Guardar Cambios</button>
+                </form>
+            </section>
+
+            <!-- Formulario para eliminar un usuario -->
+            <section>
+                <h2>Eliminar Usuario</h2>
+                <form id="eliminarUsuarioForm">
+                    <input type="hidden" id="eliminarIdUsuario">
+                    <button type="submit">Confirmar Eliminación</button>
+                </form>
+            </section>
+
+            <!-- Lista de usuarios -->
+            <section>
+                <h2>Lista de Usuarios</h2>
+                <div id="usuarios-lista"></div>
+            </section>
         </section>
 
         <section id="acciones-por-rol">
             <h2>Acciones por Rol</h2>
-            <div id="acciones-rol-lista">
-                <!-- Aquí se mostrará la lista de acciones por rol -->
-            </div>
-
-            <div id="asignar-acciones-rol">
-                <h3>Asignar Acciones a Rol</h3>
-                <form id="asignarAccionesRolForm">
-                    <label for="rolSeleccionado">Rol:</label>
-                    <select id="rolSeleccionado" required>
-                        <!-- Las opciones de roles se cargarán dinámicamente -->
-                    </select>
-
-                    <label for="accionesDisponibles"
-                        >Acciones Disponibles:</label
-                    >
-                    <select id="accionesDisponibles" multiple required>
-                        <!-- Las opciones de acciones se cargarán dinámicamente -->
-                    </select>
-
-                    <button type="submit">Asignar Acciones</button>
+            <!-- Formulario para crear una nueva acción -->
+            <section>
+                <h2>Crear Acción</h2>
+                <form id="crearAccionForm">
+                    <label for="nombreAccion">Nombre de la Acción:</label>
+                    <input type="text" id="nombreAccion" required>
+                    <label for="rolAccion">ID del Rol:</label>
+                    <input type="text" id="rolAccion" required>
+                    <button type="submit">Crear</button>
                 </form>
-            </div>
+            </section>
 
-            <div id="quitar-acciones-rol">
-                <h3>Quitar Acciones de Rol</h3>
-                <form id="quitarAccionesRolForm">
-                    <label for="rolSeleccionadoQuitar">Rol:</label>
-                    <select id="rolSeleccionadoQuitar" required>
-                        <!-- Las opciones de roles se cargarán dinámicamente -->
-                    </select>
-
-                    <label for="accionesAsignadas">Acciones Asignadas:</label>
-                    <select id="accionesAsignadas" multiple required>
-                        <!-- Las opciones de acciones se cargarán dinámicamente -->
-                    </select>
-
-                    <button type="submit">Quitar Acciones</button>
+            <!-- Formulario para editar una acción -->
+            <section>
+                <h2>Editar Acción</h2>
+                <form id="editarAccionForm">
+                    <input type="hidden" id="editarIdAccion">
+                    <label for="editarNombreAccion">Nombre de la Acción:</label>
+                    <input type="text" id="editarNombreAccion" required>
+                    <label for="editarRolAccion">ID del Rol:</label>
+                    <input type="text" id="editarRolAccion" required>
+                    <button type="submit">Guardar Cambios</button>
                 </form>
-            </div>
+            </section>
+
+            <!-- Formulario para eliminar una acción -->
+            <section>
+                <h2>Eliminar Acción</h2>
+                <form id="eliminarAccionForm">
+                    <input type="hidden" id="eliminarIdAccion">
+                    <button type="submit">Confirmar Eliminación</button>
+                </form>
+            </section>
+
+            <!-- Lista de acciones -->
+            <section>
+                <h2>Lista de Acciones</h2>
+                <div id="acciones-lista"></div>
+            </section>
         </section>
 
         <footer></footer>
